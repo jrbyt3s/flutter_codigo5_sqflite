@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_codigo5_sqflite/db/db_admin.dart';
 import 'package:flutter_codigo5_sqflite/models/book_model.dart';
+import 'package:flutter_codigo5_sqflite/ui/widgets/item_book_widget.dart';
+import 'package:flutter_codigo5_sqflite/ui/widgets/item_slider_widget.dart';
 
 import 'package:flutter_codigo5_sqflite/utils.dart/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     //DBAdmin.db.insertBookRaw();
-    DBAdmin.db.insertBook();
+    //DBAdmin.db.insertBook();
     getData();
     BookModel milibrito = BookModel(
       id: 51,
@@ -165,6 +167,7 @@ class _HomePageState extends State<HomePage> {
                   height: 30.0,
                 ),
                 /*
+                //Datos en Duro:
                 SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
@@ -278,130 +281,6 @@ class _HomePageState extends State<HomePage> {
       //     return Text("ss");
       //   },
       // ),
-    );
-  }
-}
-
-class ItemBookWidget extends StatelessWidget {
-  String title, image, author, description;
-  ItemBookWidget({
-    required this.title,
-    required this.image,
-    required this.author,
-    required this.description,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              image,
-              width: 76,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  author,
-                  style: GoogleFonts.poppins(
-                      color: Colors.white60,
-                      //fontWeight: FontWeight.w400,
-                      fontSize: 13.0),
-                ),
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16.0),
-                ),
-                Text(
-                  description,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                      color: Colors.white60,
-                      //fontWeight: FontWeight.w400,
-                      fontSize: 12.0),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ItemSliderWidget extends StatelessWidget {
-  String title, image, author;
-  ItemSliderWidget({
-    required this.title,
-    required this.image,
-    required this.author,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 170,
-      margin: const EdgeInsets.only(right: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14.0),
-            child: Image.network(
-              image,
-              height: 250,
-              width: 170,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(
-            height: 6.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  author,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.0,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(
-                  height: 2.0,
-                ),
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.0,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

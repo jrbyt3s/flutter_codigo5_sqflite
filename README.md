@@ -2,8 +2,8 @@
 
 A new Flutter project.
 
-![Screenshot-iu-1](book-ui1.png)
-![Screenshot-ui-2](book-ui2.png)
+![Screenshot-iu-1](book-ui1.png 250x)
+![Screenshot-ui-2](book-ui2.png 250x)
 
 ## Getting Started
 

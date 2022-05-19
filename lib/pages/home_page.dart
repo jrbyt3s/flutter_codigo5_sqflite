@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_codigo5_sqflite/db/db_admin.dart';
 import 'package:flutter_codigo5_sqflite/models/book_model.dart';
+import 'package:flutter_codigo5_sqflite/ui/widgets/input_textfield_widget.dart';
 import 'package:flutter_codigo5_sqflite/ui/widgets/item_book_widget.dart';
 import 'package:flutter_codigo5_sqflite/ui/widgets/item_slider_widget.dart';
 
 import 'package:flutter_codigo5_sqflite/utils.dart/colors.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +18,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<BookModel> books = [];
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _authorController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _imageUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -38,15 +44,160 @@ class _HomePageState extends State<HomePage> {
   getData() {
     DBAdmin.db.getBooks().then((value) {
       books = value;
-
       setState(() {});
     });
+  }
+
+  _showForm() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.66),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: kPrimaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          content: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Agregar libro",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(
+                  height: 7.0,
+                ),
+                Container(
+                  width: 80.0,
+                  height: 2.7,
+                  decoration: BoxDecoration(
+                    color: kSecondaryColor,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                const SizedBox(
+                  height: 16.0,
+                ),
+                InputTextFieldWidget(
+                  hintText: "Título",
+                  icon: "bx-bookmark.svg",
+                  controller: _titleController,
+                ),
+                InputTextFieldWidget(
+                  hintText: "Autor",
+                  icon: "bx-user.svg",
+                  controller: _authorController,
+                ),
+                InputTextFieldWidget(
+                  hintText: "Descripción",
+                  icon: "bx-list-ul.svg",
+                  maxLines: 2,
+                  controller: _descriptionController,
+                ),
+                InputTextFieldWidget(
+                  hintText: "Portada",
+                  icon: "bx-image-alt.svg",
+                  controller: _imageUrlController,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Cancelar",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white60,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: kSecondaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        // DBAdmin.db.insertBookRaw(
+                        //   _titleController.text,
+                        //   _authorController.text,
+                        //   _descriptionController.text,
+                        //   _imageController.text,
+                        // );
+                        BookModel book = BookModel(
+                          title: _titleController.text,
+                          author: _authorController.text,
+                          description: _descriptionController.text,
+                          image: _imageUrlController.text,
+                        );
+                        DBAdmin.db.insertBook(book).then((value) {
+                          if (value > 0) {
+                            getData();
+                            Navigator.pop(context);
+                          }
+                        });
+                        //Popup parte inferir de manera informativa que esta insertando.
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xff00afb9),
+                            duration: const Duration(seconds: 10),
+                            content: Row(
+                              children: const [
+                                Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "El libro fue agregado correctamente",
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Aceptar",
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kPrimaryColor,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: kSecondaryColor,
+        onPressed: () {
+          _showForm();
+        },
+        child: Icon(Icons.add),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

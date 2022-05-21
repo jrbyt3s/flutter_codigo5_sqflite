@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_codigo5_sqflite/db/db_admin.dart';
 import 'package:flutter_codigo5_sqflite/models/book_model.dart';
+import 'package:flutter_codigo5_sqflite/pages/detail_page.dart';
 import 'package:flutter_codigo5_sqflite/ui/widgets/input_textfield_widget.dart';
 import 'package:flutter_codigo5_sqflite/ui/widgets/item_book_widget.dart';
 import 'package:flutter_codigo5_sqflite/ui/widgets/item_slider_widget.dart';
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<BookModel> books = [];
+  int? idBook;
   TextEditingController _titleController = TextEditingController();
   TextEditingController _authorController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
@@ -48,7 +50,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  _showForm() {
+  _showForm(bool add) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -65,7 +67,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Agregar libro",
+                  add ? "Agregar libro" : "Actualizar libro",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                   ),
@@ -103,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                 InputTextFieldWidget(
                   hintText: "Portada",
                   icon: "bx-image-alt.svg",
+                  maxLines: 4,
                   controller: _imageUrlController,
                 ),
                 Row(
@@ -111,6 +114,11 @@ class _HomePageState extends State<HomePage> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
+
+                        _titleController.clear();
+                        _authorController.clear();
+                        _descriptionController.clear();
+                        _imageUrlController.clear();
                       },
                       child: Text(
                         "Cancelar",
@@ -142,35 +150,80 @@ class _HomePageState extends State<HomePage> {
                           description: _descriptionController.text,
                           image: _imageUrlController.text,
                         );
-                        DBAdmin.db.insertBook(book).then((value) {
-                          if (value > 0) {
-                            getData();
-                            Navigator.pop(context);
-                          }
-                        });
-                        //Popup parte inferir de manera informativa que esta insertando.
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: const Color(0xff00afb9),
-                            duration: const Duration(seconds: 10),
-                            content: Row(
-                              children: const [
-                                Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    "El libro fue agregado correctamente",
+                        if (add) {
+                          //Procediiento para crear:
+                          DBAdmin.db.insertBook(book).then(
+                            (value) {
+                              if (value > 0) {
+                                getData();
+                                Navigator.pop(context);
+                                _titleController.clear();
+                                _authorController.clear();
+                                _descriptionController.clear();
+                                _imageUrlController.clear();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: const Color(0xff1eb880),
+                                    duration: const Duration(seconds: 3),
+                                    content: Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            "El libro fue agregado correctamente",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          );
+                        } else {
+                          //Procedimiento para Editar o actualizar
+                          book.id = idBook;
+
+                          DBAdmin.db.updateBook(book).then((value) {
+                            if (value > 0) {
+                              getData();
+                              Navigator.pop(context);
+                              _titleController.clear();
+                              _authorController.clear();
+                              _descriptionController.clear();
+                              _imageUrlController.clear();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: const Color(0xff1eb880),
+                                  duration: const Duration(seconds: 3),
+                                  content: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "El libro fue actualizado correctamente",
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
+                              );
+                            }
+                          });
+                        }
+                        //Popup parte inferir de manera informativa que esta insertando.
                       },
                       child: Text(
                         "Aceptar",
@@ -187,6 +240,135 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  _showDeleteDialog(BookModel model) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 10.0),
+          backgroundColor: Color(0xffF53649),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.0),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Eliminar libro: ${model.title}",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                "¿Estás seguro de eliminar este libro ?",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 13.0,
+                ),
+              ),
+              const SizedBox(
+                height: 16.0,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Cancelar",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 12.0,
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      //Procedimiento para eliminar
+                      print(model.id);
+                      Navigator.pop(context);
+
+                      DBAdmin.db.deleteBook(model.id!).then((value) {
+                        if (value > 0) {
+                          getData();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: const Color(0xff00afb9),
+                              duration: const Duration(seconds: 10),
+                              content: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      "El libro fue borrado Correctamente",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Color.fromARGB(255, 185, 49, 0),
+                              duration: const Duration(seconds: 10),
+                              content: Row(
+                                children: const [
+                                  Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      "El libro fue No fue borrado Correctamente",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    child: Text(
+                      "Aceptar",
+                      style: GoogleFonts.poppins(
+                        color: Color(0xffF53649),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,7 +376,11 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: kSecondaryColor,
         onPressed: () {
-          _showForm();
+          _titleController.clear();
+          _authorController.clear();
+          _descriptionController.clear();
+          _imageUrlController.clear();
+          _showForm(true);
         },
         child: Icon(Icons.add),
       ),
@@ -336,16 +522,32 @@ class _HomePageState extends State<HomePage> {
                   physics: const BouncingScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   child: FutureBuilder(
-                    future: DBAdmin.db.getBooksRaw(),
+                    future: DBAdmin.db.getBooks(),
                     builder: (BuildContext context, AsyncSnapshot snap) {
                       if (snap.hasData) {
-                        List bookList = snap.data;
+                        List<BookModel> bookList = snap.data;
                         return Row(
                           children: bookList
-                              .map((e) => ItemSliderWidget(
-                                    title: e["title"],
-                                    image: e["image"],
-                                    author: e["author"],
+                              .map((e) => GestureDetector(
+                                    onLongPress: () {
+                                      idBook = e.id;
+                                      _titleController.text = e.title;
+                                      _authorController.text = e.author;
+                                      _descriptionController.text =
+                                          e.description;
+                                      _imageUrlController.text = e.image;
+                                      _showForm(false);
+                                    },
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DetailPage(book: e)));
+                                    },
+                                    child: ItemSliderWidget(
+                                      bookModel: e,
+                                    ),
                                   ))
                               .toList(),
                         );
@@ -356,17 +558,18 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 16),
                 FutureBuilder(
-                  future: DBAdmin.db.getBooksRaw(),
+                  future: DBAdmin.db.getBooks(),
                   builder: (BuildContext context, AsyncSnapshot snap) {
                     if (snap.hasData) {
-                      List bookList = snap.data;
+                      List<BookModel> bookList = snap.data;
                       return Column(
                         children: bookList
                             .map((e) => ItemBookWidget(
-                                  title: e["title"],
-                                  image: e["image"],
-                                  author: e["author"],
-                                  description: e["description"],
+                                  bookModel: e,
+                                  onTap: () {
+                                    idBook = e.id;
+                                    _showDeleteDialog(e);
+                                  },
                                 ))
                             .toList(),
                       );
@@ -381,10 +584,8 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: books
-                        .map((e) => ItemSliderWidget(
-                              title: e.title,
-                              image: e.image,
-                              author: e.author,
+                        .map((BookModel e) => ItemSliderWidget(
+                              bookModel: e,
                             ))
                         .toList(),
                   ),
@@ -394,10 +595,8 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: books
                       .map((itemBookModel) => ItemBookWidget(
-                            title: itemBookModel.title,
-                            image: itemBookModel.image,
-                            author: itemBookModel.author,
-                            description: itemBookModel.description,
+                            bookModel: itemBookModel,
+                            onTap: () {},
                           ))
                       .toList(),
                 ),

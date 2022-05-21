@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_codigo5_sqflite/models/book_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ItemSliderWidget extends StatelessWidget {
-  String title, image, author;
+  BookModel bookModel;
+
   ItemSliderWidget({
-    required this.title,
-    required this.image,
-    required this.author,
+    required this.bookModel,
   });
 
   @override
@@ -20,7 +20,7 @@ class ItemSliderWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(14.0),
             child: Image.network(
-              image,
+              bookModel.image,
               height: 250,
               width: 170,
               fit: BoxFit.cover,
@@ -35,7 +35,7 @@ class ItemSliderWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  author,
+                  bookModel.author,
                   style: GoogleFonts.poppins(
                     fontSize: 12.0,
                     color: Colors.white70,
@@ -45,7 +45,7 @@ class ItemSliderWidget extends StatelessWidget {
                   height: 2.0,
                 ),
                 Text(
-                  title,
+                  bookModel.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(

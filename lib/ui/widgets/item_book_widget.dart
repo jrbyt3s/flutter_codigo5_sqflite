@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_codigo5_sqflite/models/book_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ItemBookWidget extends StatelessWidget {
-  String title, image, author, description;
+  BookModel bookModel;
+  Function onTap;
   ItemBookWidget({
-    required this.title,
-    required this.image,
-    required this.author,
-    required this.description,
+    required this.bookModel,
+    required this.onTap,
   });
 
   @override
@@ -19,7 +19,7 @@ class ItemBookWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.network(
-              image,
+              bookModel.image,
               width: 76,
               fit: BoxFit.cover,
             ),
@@ -30,14 +30,14 @@ class ItemBookWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  author,
+                  bookModel.author,
                   style: GoogleFonts.poppins(
                       color: Colors.white60,
                       //fontWeight: FontWeight.w400,
                       fontSize: 13.0),
                 ),
                 Text(
-                  title,
+                  bookModel.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
@@ -46,13 +46,28 @@ class ItemBookWidget extends StatelessWidget {
                       fontSize: 16.0),
                 ),
                 Text(
-                  description,
+                  bookModel.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
                       color: Colors.white60,
                       //fontWeight: FontWeight.w400,
                       fontSize: 12.0),
+                ),
+                InkWell(
+                  onTap: () {
+                    onTap();
+                  },
+                  child: Text(
+                    "Eliminar",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white.withOpacity(0.85),
+                      fontSize: 12.0,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
               ],
             ),
